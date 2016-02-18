@@ -459,7 +459,7 @@ public abstract class DataUploadPlugin extends OutputPlugin
         else if (prefs.getBoolean(StreamingJacksonUploadPlugin.ENABLED, StreamingJacksonUploadPlugin.ENABLED_DEFAULT))
             return true;
 
-        return false;
+        return true;
     }
 
     public static long lastUploadTime(SharedPreferences prefs)

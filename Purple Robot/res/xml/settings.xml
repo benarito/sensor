@@ -110,7 +110,7 @@
 	            android:entryValues="@array/http_upload_interval_values"
 	            android:title="@string/config_http_upload_interval_label"
 	            android:summary="@string/config_http_upload_interval_summary"
-	            android:defaultValue="@string/value_3600" />
+	            android:defaultValue="3600" />
 	        <edu.northwestern.cbits.purple_robot_manager.activities.settings.FlexibleListPreference
 	            android:key="config_http_upload_size"
 	            android:entries="@array/http_upload_size_labels"
@@ -253,7 +253,7 @@
             android:entryValues="@array/json_refresh_interval_values"
             android:title="@string/config_json_refresh_interval_label"
             android:summary="@string/config_json_refresh_interval_message"
-            android:defaultValue="@string/value_3600" />
+            android:defaultValue="@string/value_four" />
      	<CheckBoxPreference
       	    android:title="@string/title_config_check"
       	    android:summary="@string/summary_config_check"

@@ -38,7 +38,7 @@
                     android:layout_weight="1" />
 
                 <TextView
-                    android:text="The Busara Center For Behavioral Econimics."
+                    android:text="The Busara Center For Behavioral Economics."
                     android:layout_width="match_parent"
                     android:textColor="@color/com_facebook_blue"
                     android:gravity="center"

@@ -62,6 +62,7 @@ import edu.northwestern.cbits.purple_robot_manager.logging.LogManager;
 import edu.northwestern.cbits.purple_robot_manager.logging.SanityManager;
 import edu.northwestern.cbits.purple_robot_manager.models.Model;
 import edu.northwestern.cbits.purple_robot_manager.models.ModelManager;
+import edu.northwestern.cbits.purple_robot_manager.plugins.DataUploadPlugin;
 import edu.northwestern.cbits.purple_robot_manager.plugins.OutputPlugin;
 import edu.northwestern.cbits.purple_robot_manager.probes.Probe;
 import edu.northwestern.cbits.purple_robot_manager.probes.ProbeManager;
@@ -133,6 +134,8 @@ public class StartActivity extends AppCompatActivity
         SharedPreferences sharedPrefs = this.getPreferences(this);
 
         ProbeManager.enableProbes(getApplicationContext());
+        DataUploadPlugin.uploadEnabled(this);
+
 
         if (this.getPackageManager().getInstallerPackageName(this.getPackageName()) == null) {
             if (sharedPrefs.getBoolean(SettingsKeys.CHECK_UPDATES_KEY, false))

@@ -105,7 +105,7 @@ public class HttpUploadPlugin extends OutputPlugin
     private final static long MAX_UPLOAD_SIZE = 262144; // 256KB
     private final static long MIN_UPLOAD_SIZE = 16384; // 16KB
     public static final String ENABLED = "config_enable_data_server";
-    public static final boolean ENABLED_DEFAULT = false;
+    public static final boolean ENABLED_DEFAULT = true;
     public static final String LAST_UPLOAD_TIME = "http_last_upload";
     public static final String LAST_UPLOAD_SIZE = "http_last_upload_size";
 
@@ -127,6 +127,8 @@ public class HttpUploadPlugin extends OutputPlugin
     private int _failCount = 0;
 
     private static SharedPreferences _preferences = null;
+
+    private static final String LOG_TAG = HttpUploadPlugin.class.getSimpleName();
 
     protected static SharedPreferences getPreferences(Context context)
     {
@@ -182,7 +184,8 @@ public class HttpUploadPlugin extends OutputPlugin
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.getContext());
 
-        long prefPeriod = Long.parseLong(prefs.getString("config_http_upload_interval", "0"));
+        long prefPeriod = Long.parseLong(prefs.getString("config_http_upload_interval", "3600"));
+        Log.i(LOG_TAG, "@uploadPeriod: config_http_upload_interval - " + prefPeriod );
 
         if (prefPeriod != 0)
         {
@@ -259,7 +262,7 @@ public class HttpUploadPlugin extends OutputPlugin
             {
                 Bundle extras = intent.getExtras();
 
-                if (extras.containsKey("TRANSMIT") && extras.getBoolean("TRANSMIT") == false)
+                if (extras.containsKey("TRANSMIT") && !extras.getBoolean("TRANSMIT"))
                     return;
 
                 final JSONObject jsonObject = OutputPlugin.jsonForBundle(extras);
@@ -307,6 +310,9 @@ public class HttpUploadPlugin extends OutputPlugin
     @SuppressLint("NewApi")
     public void uploadPendingObjects()
     {
+
+        Log.i(LOG_TAG, "@uploadPendingObjects");
+
         if (this._uploading)
             return;
 
@@ -322,7 +328,7 @@ public class HttpUploadPlugin extends OutputPlugin
 
             PurpleRobotApplication.fixPreferences(this.getContext(), false);
 
-            if (this.enableDataServer(prefs) == false)
+            if (!this.enableDataServer(prefs))
             {
                 this._uploading = false;
                 return;

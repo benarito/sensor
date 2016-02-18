@@ -23,7 +23,7 @@ public class LastUploadCheck extends SanityCheck
 
         PurpleRobotApplication.fixPreferences(context, false);
 
-        if (DataUploadPlugin.uploadEnabled(context) == false)
+        if (!DataUploadPlugin.uploadEnabled(context))
         {
             this._errorLevel = SanityCheck.OK;
             return;

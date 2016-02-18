@@ -1398,7 +1398,12 @@
 	<string name="value_300">300</string>
 	<string name="value_600">600</string>
 	<string name="value_3600">3600</string>
-	
+
+    <string name="value_0">0</string>
+    <string name="value_30">30</string>
+    <string name="value_60">60</string>
+    <string name="value_1800">1800</string>
+
 	<string name="subtitle_streaming_live">Live data stream</string>
 	<string name="title_run_tests">Application Tests</string>
 	<string name="subtitle_run_tests">%1$d tests</string>

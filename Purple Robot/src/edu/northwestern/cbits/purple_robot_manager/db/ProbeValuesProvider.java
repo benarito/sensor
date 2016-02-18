@@ -1,15 +1,5 @@
 package edu.northwestern.cbits.purple_robot_manager.db;
 
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -21,6 +11,16 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteStatement;
 
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+
 import edu.northwestern.cbits.purple_robot_manager.db.filters.Filter;
 import edu.northwestern.cbits.purple_robot_manager.db.filters.FrequencyThrottleFilter;
 import edu.northwestern.cbits.purple_robot_manager.db.filters.ValueDeltaFilter;
@@ -31,8 +31,7 @@ import edu.northwestern.cbits.purple_robot_manager.probes.builtin.LightProbe;
 import edu.northwestern.cbits.purple_robot_manager.probes.builtin.MagneticFieldProbe;
 import edu.northwestern.cbits.purple_robot_manager.probes.builtin.PressureProbe;
 
-public class ProbeValuesProvider
-{
+public class ProbeValuesProvider {
     public static final String INTEGER_TYPE = "integer";
     public static final String REAL_TYPE = "real";
     public static final String TEXT_TYPE = "text";
@@ -56,16 +55,14 @@ public class ProbeValuesProvider
 
     private HashMap<String, Long> _lastUpdates = new HashMap<>();
 
-    public static ProbeValuesProvider getProvider(Context context)
-    {
+    public static ProbeValuesProvider getProvider(Context context) {
         if (ProbeValuesProvider._instance == null)
             ProbeValuesProvider._instance = new ProbeValuesProvider(context.getApplicationContext());
 
         return ProbeValuesProvider._instance;
     }
 
-    public ProbeValuesProvider(Context context)
-    {
+    public ProbeValuesProvider(Context context) {
         this._context = context.getApplicationContext();
 
         HashSet<String> highFreq = new HashSet<>();
@@ -74,26 +71,26 @@ public class ProbeValuesProvider
         highFreq.add(MagneticFieldProbe.DB_TABLE);
 
         this._filters.add(new FrequencyThrottleFilter(1000, null, highFreq)); // Don't
-                                                                              // save
-                                                                              // any
-                                                                              // readings
-                                                                              // at
-                                                                              // a
-                                                                              // larger
-                                                                              // than
-                                                                              // 1
-                                                                              // second
-                                                                              // interval
-                                                                              // for
-                                                                              // most
-                                                                              // sensors...
+        // save
+        // any
+        // readings
+        // at
+        // a
+        // larger
+        // than
+        // 1
+        // second
+        // interval
+        // for
+        // most
+        // sensors...
         this._filters.add(new FrequencyThrottleFilter(100, highFreq, null)); // Only
-                                                                             // save
-                                                                             // high-frequency
-                                                                             // data
-                                                                             // at
-                                                                             // 0.1s
-                                                                             // intervals...
+        // save
+        // high-frequency
+        // data
+        // at
+        // 0.1s
+        // intervals...
 
         // Proximity: Identical values
 
@@ -115,40 +112,33 @@ public class ProbeValuesProvider
         this._filters.add(new ValueDeltaFilter(5.0, fiveDelta));
     }
 
-    public void close()
-    {
+    public void close() {
 //        this._dbHelper.close();
     }
 
-    private String tableName(Context context, String name, Map<String, String> schema)
-    {
+    private String tableName(Context context, String name, Map<String, String> schema) {
         String tableName = name;
 
         ArrayList<String> columns = new ArrayList<>(schema.keySet());
         Collections.sort(columns);
 
-        for (String key : columns)
-        {
+        for (String key : columns) {
             tableName += (key + schema.get(key));
         }
 
-        try
-        {
+        try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             byte[] digest = md.digest(tableName.getBytes("UTF-8"));
 
             tableName = "table_" + (new BigInteger(1, digest)).toString(16);
-        }
-        catch (NoSuchAlgorithmException | UnsupportedEncodingException e)
-        {
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
             LogManager.getInstance(context).logException(e);
         }
 
         return tableName;
     }
 
-    private boolean tableExists(Context context, String tableName)
-    {
+    private boolean tableExists(Context context, String tableName) {
         Cursor c = null;
 
         boolean tableExists = false;
@@ -157,45 +147,38 @@ public class ProbeValuesProvider
 
         SQLiteDatabase database = helper.getWritableDatabase();
 
-        try
-        {
+        try {
             c = database.query(tableName, null, null, null, null, null, null);
 
             tableExists = true;
-        }
-        catch (SQLiteException e)
-        {
+        } catch (SQLiteException e) {
             // LogManager.getInstance(context).logException(e);
-        }
-        finally
-        {
+        } finally {
             if (c != null)
                 c.close();
+
+            database.close();
+            helper.close();
         }
 
-        database.close();
 
         return tableExists;
     }
 
-    private boolean isValidColumn(String key)
-    {
+    private boolean isValidColumn(String key) {
         // TODO: Add more checks...
 
         return true;
     }
 
-    private boolean createTable(String name, Map<String, String> schema)
-    {
+    private boolean createTable(String name, Map<String, String> schema) {
         String createSql = "create table " + name + " (" + ProbeValuesProvider.ID
                 + " integer primary key autoincrement";
 
         createSql += (", " + ProbeValuesProvider.TIMESTAMP + " real");
 
-        for (String key : schema.keySet())
-        {
-            if (this.isValidColumn(key))
-            {
+        for (String key : schema.keySet()) {
+            if (this.isValidColumn(key)) {
                 String dbType = null;
 
                 String type = schema.get(key);
@@ -221,13 +204,13 @@ public class ProbeValuesProvider
         database.execSQL(createSql);
 
         database.close();
+        helper.close();
 
         return true;
     }
 
     public void insertValue(final Context context, final String name, final Map<String, String> schema,
-            final Map<String, Object> values)
-    {
+                            final Map<String, Object> values) {
         long now = System.currentTimeMillis();
 
         long lastUpdate = 0;
@@ -244,12 +227,9 @@ public class ProbeValuesProvider
 
         final HashSet<Long> attempts = new HashSet<>();
 
-        Runnable r = new Runnable()
-        {
-            public void run()
-            {
-                try
-                {
+        Runnable r = new Runnable() {
+            public void run() {
+                try {
                     ProbeValuesSqlHelper helper = new ProbeValuesSqlHelper(context);
 
                     SQLiteDatabase database = helper.getWritableDatabase();
@@ -302,9 +282,8 @@ public class ProbeValuesProvider
                     }
 
                     database.close();
-                }
-                catch (SQLiteException e)
-                {
+                    helper.close();
+                } catch (SQLiteException e) {
                     try {
                         Thread.sleep(250);
                     } catch (InterruptedException e1) {
@@ -319,21 +298,16 @@ public class ProbeValuesProvider
             }
         };
 
-        try
-        {
+        try {
             Thread t = new Thread(r);
             t.start();
-        }
-        catch (OutOfMemoryError e)
-        {
+        } catch (OutOfMemoryError e) {
             LogManager.getInstance(context).logException(e);
         }
     }
 
-    private void cleanup(Context context)
-    {
-        try
-        {
+    private void cleanup(Context context) {
+        try {
             this._lastCleanup = System.currentTimeMillis();
 
             String tableSelect = "select name from sqlite_master where type='table';";
@@ -344,14 +318,11 @@ public class ProbeValuesProvider
 
             Cursor c = database.rawQuery(tableSelect, null);
 
-            while (c.moveToNext())
-            {
+            while (c.moveToNext()) {
                 String tableName = c.getString(c.getColumnIndex("name"));
 
-                try
-                {
-                    if (tableName.startsWith("table_"))
-                    {
+                try {
+                    if (tableName.startsWith("table_")) {
                         Cursor cursor = database.query(tableName, null, null, null, null, null, null);
 
                         cursor.close();
@@ -365,9 +336,7 @@ public class ProbeValuesProvider
 
                         cursor.close();
                     }
-                }
-                catch (SQLException e)
-                {
+                } catch (SQLException e) {
                     LogManager.getInstance(context).logException(e);
                 }
             }
@@ -375,15 +344,13 @@ public class ProbeValuesProvider
             database.close();
 
             c.close();
-        }
-        catch (RuntimeException e)
-        {
+            helper.close();
+        } catch (RuntimeException e) {
             LogManager.getInstance(context).logException(e);
         }
     }
 
-    public void clear(Context context)
-    {
+    public void clear(Context context) {
         ProbeValuesSqlHelper helper = new ProbeValuesSqlHelper(context);
 
         String tableSelect = "select name from sqlite_master where type='table';";
@@ -399,24 +366,20 @@ public class ProbeValuesProvider
 
         c.close();
 
-        for (String name : names)
-        {
-            try
-            {
+        for (String name : names) {
+            try {
                 SQLiteStatement delete = database.compileStatement("delete from " + name + " where (_id != -1)");
                 delete.execute();
-            }
-            catch (SQLException e)
-            {
+            } catch (SQLException e) {
                 LogManager.getInstance(context).logException(e);
             }
         }
 
         database.close();
+        helper.close();
     }
 
-    static int getType(Cursor cursor, int i) throws Exception
-    {
+    static int getType(Cursor cursor, int i) throws Exception {
         SQLiteCursor sqLiteCursor = (SQLiteCursor) cursor;
 
         CursorWindow cursorWindow = sqLiteCursor.getWindow();
@@ -437,34 +400,28 @@ public class ProbeValuesProvider
         return ProbeValuesProvider.FIELD_TYPE_UNKNOWN;
     }
 
-    public Cursor retrieveValues(Context context, String name, Map<String, String> schema)
-    {
+    public Cursor retrieveValues(Context context, String name, Map<String, String> schema) {
         MatrixCursor matrix = null;
 
         ProbeValuesSqlHelper helper = new ProbeValuesSqlHelper(context);
 
-        synchronized (this)
-        {
+        synchronized (this) {
             SQLiteDatabase database = helper.getWritableDatabase();
 
             String localName = this.tableName(context, name, schema);
 
             if (this.tableExists(context, localName) == false)
                 this.createTable(localName, schema);
-            try
-            {
+            try {
                 Cursor c = database.query(localName, null, null, null, null, null, ProbeValuesProvider.TIMESTAMP);
 
                 matrix = new MatrixCursor(c.getColumnNames());
 
-                while (c.moveToNext())
-                {
+                while (c.moveToNext()) {
                     Object[] values = new Object[c.getColumnCount()];
 
-                    for (int i = 0; i < c.getColumnCount(); i++)
-                    {
-                        switch(ProbeValuesProvider.getType(c, i))
-                        {
+                    for (int i = 0; i < c.getColumnCount(); i++) {
+                        switch (ProbeValuesProvider.getType(c, i)) {
                             case ProbeValuesProvider.FIELD_TYPE_BLOB:
                                 values[i] = c.getBlob(i);
                                 break;
@@ -487,13 +444,12 @@ public class ProbeValuesProvider
                 }
 
                 c.close();
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 LogManager.getInstance(context).logException(e);
             }
 
             database.close();
+            helper.close();
         }
 
         return matrix;
